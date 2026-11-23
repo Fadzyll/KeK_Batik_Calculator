@@ -39,7 +39,9 @@ cost/piece = 16 ÷ 16 + 0.10 = RM1.10 → RM2.20 → rounded to **RM2.50**.
    and tick *Auto Confirm User*).
 4. Recommended: **Authentication → Sign In / Providers → Email** → turn **off** "Allow new users to sign up",
    so nobody else can create an account. (The app has no sign-up page anyway.)
-5. Copy your keys from **Project Settings → API**: the *Project URL* and the *anon public* key.
+5. Copy your keys from **Project Settings → API Keys**: the *Project URL* (`https://<project-id>.supabase.co`) and the
+   **Publishable key** (`sb_publishable_...`; on older projects this is the *anon public* key).
+   Put the publishable key in `NEXT_PUBLIC_SUPABASE_ANON_KEY`. **Never** use the `sb_secret_...` key in this app.
 
 ### 2. Run locally (optional)
 

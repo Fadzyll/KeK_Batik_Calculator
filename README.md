@@ -9,7 +9,8 @@ A small sales management system for kek batik:
 - **Expenses**: log every purchase. You can optionally update the ingredient's price to what you just paid.
 - **Sales**: log sales (price auto-fills from your recipe), filtered by month.
 - **Dashboard**: this month's sales, expenses and profit, plus a 6-month view and best sellers.
-- **Login required**: data is private to your account (Supabase Auth + Row Level Security).
+- **Register + email verification**: anyone can register, but must click the link in a verification email
+  before they can sign in. Each account only ever sees its own data (Supabase Auth + Row Level Security).
 
 Built with Next.js 15 (App Router), Tailwind CSS 4 and Supabase.
 
@@ -35,10 +36,13 @@ cost/piece = 16 ÷ 16 + 0.10 = RM1.10 → RM2.20 → rounded to **RM2.50**.
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Open **SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](supabase/schema.sql), and click **Run**.
-3. Create your login: **Authentication → Users → Add user → Create new user** (enter your email and a password,
-   and tick *Auto Confirm User*).
-4. Recommended: **Authentication → Sign In / Providers → Email** → turn **off** "Allow new users to sign up",
-   so nobody else can create an account. (The app has no sign-up page anyway.)
+3. **Authentication → Sign In / Providers → Email**: make sure **Allow new users to sign up** and
+   **Confirm email** are both **on**.
+4. **Authentication → URL Configuration**:
+   - **Site URL**: `https://kek-batik-calculator.vercel.app` (your Vercel URL)
+   - **Redirect URLs**: add `https://kek-batik-calculator.vercel.app/**` (and `http://localhost:3000/**` for local dev)
+
+   Without this, the link in the verification email points to `localhost` and won't work.
 5. Copy your keys from **Project Settings → API Keys**: the *Project URL* (`https://<project-id>.supabase.co`) and the
    **Publishable key** (`sb_publishable_...`; on older projects this is the *anon public* key).
    Put the publishable key in `NEXT_PUBLIC_SUPABASE_ANON_KEY`. **Never** use the `sb_secret_...` key in this app.
@@ -58,6 +62,13 @@ npm run dev                  # open http://localhost:3000
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. Click **Deploy**. Every push to your main branch will redeploy automatically.
+
+### Verification emails
+
+Supabase's built-in email sender only allows a few emails per hour and is meant for testing.
+If many people will register, connect your own SMTP (e.g. Resend, Brevo, Gmail SMTP) under
+**Authentication → Emails → SMTP Settings**. You can also change the email wording under
+**Authentication → Emails → Templates → Confirm signup**.
 
 ## Development
 

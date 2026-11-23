@@ -113,6 +113,21 @@ begin
   end loop;
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- Table privileges. Newer Supabase projects no longer grant these automatically,
+-- so signed-in users must be allowed to use the tables (RLS above then limits
+-- them to their own rows). Anonymous visitors get nothing.
+-- ---------------------------------------------------------------------------
+grant usage on schema public to authenticated;
+grant select, insert, update, delete
+  on public.ingredients, public.recipes, public.recipe_items,
+     public.extra_costs, public.expenses, public.sales
+  to authenticated;
+revoke all
+  on public.ingredients, public.recipes, public.recipe_items,
+     public.extra_costs, public.expenses, public.sales
+  from anon;
+
 -- Keep ingredients.updated_at fresh
 create or replace function public.touch_updated_at() returns trigger
 language plpgsql as $$

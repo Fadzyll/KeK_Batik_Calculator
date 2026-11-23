@@ -4,8 +4,9 @@ A small sales management system for kek batik:
 
 - **Ingredients**: record each ingredient's pack price and size (e.g. Milo 1kg = RM32.90).
 - **Recipes & Pricing**: say how much of each ingredient one 8×8″ loyang uses, add extra costs
-  (packaging, gas, labour), and get a **suggested price per piece** for every way of cutting it
-  (3×3 = 9 pcs, 4×4 = 16 pcs, 5×5 = 25 pcs…), based on your target profit margin and rounding.
+  (packaging, gas, labour), and get a **suggested price per piece** for any cut: rows × columns
+  (4×2 = 8 pcs, 4×4 = 16 pcs, 5×4 = 20 pcs…), based on your target profit margin and rounding.
+  Each cut has an ⓘ button that shows a picture of how to slice the loyang.
 - **Expenses**: log every purchase. You can optionally update the ingredient's price to what you just paid.
 - **Sales**: log sales (price auto-fills from your recipe), filtered by month.
 - **Dashboard**: this month's sales, expenses and profit, plus a 6-month view and best sellers.
@@ -18,6 +19,7 @@ Built with Next.js 15 (App Router), Tailwind CSS 4 and Supabase.
 
 ```
 ingredient cost / loyang = Σ (amount used ÷ pack size × pack price)
+pieces                   = rows × columns
 cost / piece             = (ingredient cost + per-loyang extras) ÷ pieces + per-piece extras
 suggested price          = cost / piece ÷ (1 − margin%)   → rounded UP to your step (e.g. RM0.50)
 ```
@@ -36,6 +38,8 @@ cost/piece = 16 ÷ 16 + 0.10 = RM1.10 → RM2.20 → rounded to **RM2.50**.
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Open **SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](supabase/schema.sql), and click **Run**.
+   Then do the same for each file in [`supabase/migrations/`](supabase/migrations) in number order
+   (they're safe to run more than once).
 3. **Authentication → Sign In / Providers → Email**: make sure **Allow new users to sign up** and
    **Confirm email** are both **on**.
 4. **Authentication → URL Configuration**:

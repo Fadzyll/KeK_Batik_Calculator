@@ -12,6 +12,8 @@ export type Recipe = {
   name: string;
   pan_size_inch: number;
   default_grid: number;
+  default_rows?: number | null;
+  default_cols?: number | null;
   target_margin: number;
   rounding_step: number;
   notes: string | null;

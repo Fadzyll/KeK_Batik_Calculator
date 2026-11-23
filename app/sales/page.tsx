@@ -4,8 +4,8 @@ import { SaleForm } from "./SaleForm";
 import { DeleteButton } from "@/components/DeleteButton";
 import { FormError } from "@/components/FormError";
 import { MonthPicker } from "@/components/MonthPicker";
-import { fetchRecipes, pricingInput } from "@/lib/recipes";
-import { pricingForGrid } from "@/lib/pricing";
+import { cutOf, fetchRecipes, pricingInput } from "@/lib/recipes";
+import { pricingForCut } from "@/lib/pricing";
 import { formatDate, monthLabel, monthRange, rm, todayMY, validMonth } from "@/lib/format";
 import type { Sale } from "@/lib/types";
 
@@ -34,7 +34,7 @@ export default async function SalesPage({
   const pieces = sales.reduce((s, x) => s + x.pieces, 0);
 
   const recipeOptions = recipes.map((r) => {
-    const p = pricingForGrid(pricingInput(r), r.default_grid);
+    const p = pricingForCut(pricingInput(r), cutOf(r).rows, cutOf(r).cols);
     return { id: r.id, name: r.name, suggestedPrice: p.suggestedPrice, pieces: p.pieces };
   });
 

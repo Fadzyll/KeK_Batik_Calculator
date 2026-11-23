@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/supabase/server";
-import { fetchRecipes, pricingInput } from "@/lib/recipes";
-import { pricingForGrid } from "@/lib/pricing";
+import { cutOf, fetchRecipes, pricingInput } from "@/lib/recipes";
+import { pricingForCut } from "@/lib/pricing";
 import { monthLabel, monthRange, rm, thisMonthMY } from "@/lib/format";
 
 function shiftMonth(month: string, delta: number): string {
@@ -143,7 +143,7 @@ export default async function Dashboard() {
             <table className="table">
               <tbody>
                 {recipes.map((r) => {
-                  const p = pricingForGrid(pricingInput(r), r.default_grid);
+                  const p = pricingForCut(pricingInput(r), cutOf(r).rows, cutOf(r).cols);
                   return (
                     <tr key={r.id}>
                       <td>

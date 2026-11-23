@@ -5,7 +5,7 @@ import {
   ingredientCostPerLoyang,
   roundUpTo,
   priceForMargin,
-  pricingForGrid,
+  pricingForCut,
   loyangCost,
 } from "./pricing.ts";
 
@@ -38,8 +38,8 @@ test("priceForMargin", () => {
   assert.ok(Math.abs(priceForMargin(0.6, 40) - 1) < 1e-9);
 });
 
-test("pricingForGrid 4x4 with extras", () => {
-  const r = pricingForGrid(
+test("pricingForCut 4x4 with extras", () => {
+  const r = pricingForCut(
     {
       items: [
         { quantity_used: 250, ingredient: milo },
@@ -54,9 +54,10 @@ test("pricingForGrid 4x4 with extras", () => {
       roundingStep: 0.5,
     },
     4,
+    4,
   );
   assert.equal(r.pieces, 16);
-  assert.equal(r.pieceSizeInch, 2);
+  assert.equal(r.pieceWidthInch, 2);
   assert.equal(r.costPerPiece, 1.1); // (11+5)/16 + 0.1
   assert.equal(r.suggestedPrice, 2.5); // 2.2 → 2.5
 });
@@ -66,4 +67,17 @@ test("loyangCost includes per-piece extras times pieces", () => {
     loyangCost([{ quantity_used: 250, ingredient: milo }], [{ amount: 0.5, cost_type: "per_piece" }], 16),
     16,
   );
+});
+
+test("pricingForCut supports rectangles: 4 rows x 2 columns", () => {
+  const r = pricingForCut(
+    { items: [{ quantity_used: 1000, ingredient: milo }], extras: [], panSizeInch: 8, targetMargin: 50, roundingStep: 0.5 },
+    4,
+    2,
+  );
+  assert.equal(r.pieces, 8);
+  assert.equal(r.pieceWidthInch, 4); // 8 / 2 columns
+  assert.equal(r.pieceLengthInch, 2); // 8 / 4 rows
+  assert.equal(r.costPerPiece, 4); // RM32 / 8
+  assert.equal(r.suggestedPrice, 8);
 });

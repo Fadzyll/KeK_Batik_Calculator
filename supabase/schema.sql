@@ -25,7 +25,9 @@ create table if not exists public.recipes (
   user_id         uuid not null default auth.uid() references auth.users (id) on delete cascade,
   name            text not null,
   pan_size_inch   numeric(5, 2) not null default 8 check (pan_size_inch > 0),
-  default_grid    int not null default 4 check (default_grid between 1 and 20), -- 4 = 4x4 = 16 pieces
+  default_grid    int not null default 4 check (default_grid between 1 and 20), -- legacy, superseded by default_rows/default_cols
+  default_rows    int not null default 4 check (default_rows between 1 and 30), -- cut: rows down the loyang
+  default_cols    int not null default 4 check (default_cols between 1 and 30), -- cut: columns across
   target_margin   numeric(5, 2) not null default 50 check (target_margin >= 0 and target_margin < 100), -- percent
   rounding_step   numeric(6, 2) not null default 0.50 check (rounding_step >= 0), -- round price up to this (RM)
   notes           text,

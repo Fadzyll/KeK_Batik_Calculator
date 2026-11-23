@@ -3,8 +3,8 @@ import { requireUser } from "@/lib/supabase/server";
 import { createRecipe } from "./actions";
 import { SubmitButton } from "@/components/SubmitButton";
 import { FormError } from "@/components/FormError";
-import { fetchRecipes, pricingInput } from "@/lib/recipes";
-import { ingredientCostPerLoyang, pricingForGrid } from "@/lib/pricing";
+import { cutOf, fetchRecipes, pricingInput } from "@/lib/recipes";
+import { ingredientCostPerLoyang, pricingForCut } from "@/lib/pricing";
 import { rm } from "@/lib/format";
 
 export default async function RecipesPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -35,13 +35,13 @@ export default async function RecipesPage({ searchParams }: { searchParams: Prom
         <div className="grid gap-4 sm:grid-cols-2">
           {recipes.map((r) => {
             const input = pricingInput(r);
-            const p = pricingForGrid(input, r.default_grid);
+            const p = pricingForCut(input, cutOf(r).rows, cutOf(r).cols);
             return (
               <Link key={r.id} href={`/recipes/${r.id}`} className="card block transition hover:border-cocoa-400">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="font-semibold text-cocoa-900">{r.name}</h2>
                   <span className="rounded-full bg-cocoa-100 px-2 py-0.5 text-xs text-cocoa-700">
-                    {r.default_grid}×{r.default_grid} = {p.pieces} pcs
+                    {p.rows}×{p.cols} = {p.pieces} pcs
                   </span>
                 </div>
                 <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">

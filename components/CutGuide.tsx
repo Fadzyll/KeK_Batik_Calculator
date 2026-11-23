@@ -3,26 +3,30 @@
 import { useRef } from "react";
 
 const CM_PER_INCH = 2.54;
+const fmtIn = (n: number) => `${Number(n.toFixed(2))}″`;
+const fmtCm = (n: number) => (n * CM_PER_INCH).toFixed(1);
 
 /** Top-down picture of the loyang with the cut lines drawn in. */
-export function CutDiagram({ grid, panInch }: { grid: number; panInch: number }) {
+export function CutDiagram({ rows, cols, panInch }: { rows: number; cols: number; panInch: number }) {
   const size = 220; // drawn pan size in SVG units
   const left = 34;
   const top = 30;
-  const cell = size / grid;
-  const pieceIn = panInch / grid;
+  const cellW = size / cols;
+  const cellH = size / rows;
+  const pieceW = panInch / cols;
+  const pieceL = panInch / rows;
   const unitsPerInch = size / panInch;
   const wholeInches = Math.floor(panInch + 1e-9);
   // Thin out the piece numbers on very fine grids so they stay readable
-  const showNumbers = grid <= 10;
-  const fontSize = Math.max(7, Math.min(16, cell * 0.36));
+  const showNumbers = rows <= 12 && cols <= 12;
+  const fontSize = Math.max(7, Math.min(16, Math.min(cellW, cellH) * 0.36));
 
   return (
     <svg
       viewBox={`0 0 ${left + size + 14} ${top + size + 34}`}
       className="mx-auto w-full max-w-[320px]"
       role="img"
-      aria-label={`Loyang ${panInch} by ${panInch} inch cut into ${grid} by ${grid}, ${grid * grid} pieces`}
+      aria-label={`Loyang ${panInch} by ${panInch} inch cut into ${rows} rows by ${cols} columns, ${rows * cols} pieces`}
     >
       {/* Ruler along the top, one tick per inch */}
       <line x1={left} y1={top - 12} x2={left + size} y2={top - 12} stroke="#b8835e" strokeWidth={1} />
@@ -46,22 +50,22 @@ export function CutDiagram({ grid, panInch }: { grid: number; panInch: number })
       <rect x={left - 4} y={top - 4} width={size + 8} height={size + 8} rx={6} fill="#cfa98a" />
 
       {/* Pieces, chequered so each one is easy to see */}
-      {Array.from({ length: grid * grid }, (_, i) => {
-        const r = Math.floor(i / grid);
-        const c = i % grid;
+      {Array.from({ length: rows * cols }, (_, i) => {
+        const r = Math.floor(i / cols);
+        const c = i % cols;
         return (
           <g key={i}>
             <rect
-              x={left + c * cell}
-              y={top + r * cell}
-              width={cell}
-              height={cell}
+              x={left + c * cellW}
+              y={top + r * cellH}
+              width={cellW}
+              height={cellH}
               fill={(r + c) % 2 === 0 ? "#4a2c1e" : "#643c28"}
             />
             {showNumbers && (
               <text
-                x={left + c * cell + cell / 2}
-                y={top + r * cell + cell / 2}
+                x={left + c * cellW + cellW / 2}
+                y={top + r * cellH + cellH / 2}
                 fontSize={fontSize}
                 textAnchor="middle"
                 dominantBaseline="central"
@@ -76,24 +80,25 @@ export function CutDiagram({ grid, panInch }: { grid: number; panInch: number })
       })}
 
       {/* Cut lines */}
-      {Array.from({ length: grid - 1 }, (_, i) => {
-        const pos = (i + 1) * cell;
-        return (
-          <g key={i} stroke="#faf6f2" strokeWidth={1.5} strokeDasharray="4 3">
-            <line x1={left + pos} y1={top} x2={left + pos} y2={top + size} />
-            <line x1={left} y1={top + pos} x2={left + size} y2={top + pos} />
-          </g>
-        );
-      })}
+      <g stroke="#faf6f2" strokeWidth={1.5} strokeDasharray="4 3">
+        {Array.from({ length: cols - 1 }, (_, i) => {
+          const x = left + (i + 1) * cellW;
+          return <line key={`v${i}`} x1={x} y1={top} x2={x} y2={top + size} />;
+        })}
+        {Array.from({ length: rows - 1 }, (_, i) => {
+          const y = top + (i + 1) * cellH;
+          return <line key={`h${i}`} x1={left} y1={y} x2={left + size} y2={y} />;
+        })}
+      </g>
 
       {/* Size of one piece, marked under the first column */}
       <g stroke="#7f4e32" strokeWidth={1}>
-        <line x1={left} y1={top + size + 12} x2={left + cell} y2={top + size + 12} />
+        <line x1={left} y1={top + size + 12} x2={left + cellW} y2={top + size + 12} />
         <line x1={left} y1={top + size + 8} x2={left} y2={top + size + 16} />
-        <line x1={left + cell} y1={top + size + 8} x2={left + cell} y2={top + size + 16} />
+        <line x1={left + cellW} y1={top + size + 8} x2={left + cellW} y2={top + size + 16} />
       </g>
       <text x={left} y={top + size + 28} fontSize={9} fill="#643c28">
-        1 piece = {pieceIn.toFixed(2)}″ ({(pieceIn * CM_PER_INCH).toFixed(1)} cm)
+        1 piece = {fmtIn(pieceW)} × {fmtIn(pieceL)} ({fmtCm(pieceW)} × {fmtCm(pieceL)} cm)
       </text>
 
       {/* Side label: pan size */}
@@ -113,22 +118,27 @@ export function CutDiagram({ grid, panInch }: { grid: number; panInch: number })
 
 /** Small ⓘ button that opens a pop-up showing how to cut the loyang. */
 export function CutInfoButton({
-  grid,
+  rows,
+  cols,
   panInch,
   price,
   className = "",
   light = false,
 }: {
-  grid: number;
+  rows: number;
+  cols: number;
   panInch: number;
   price?: number;
   className?: string;
   light?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const pieces = grid * grid;
-  const pieceIn = panInch / grid;
-  const cuts = grid - 1;
+  const pieces = rows * cols;
+  const pieceW = panInch / cols;
+  const pieceL = panInch / rows;
+  const downCuts = cols - 1; // cuts from top to bottom make the columns
+  const acrossCuts = rows - 1; // cuts from side to side make the rows
+  const shape = rows === cols ? "square" : "rectangle";
 
   return (
     <>
@@ -138,7 +148,7 @@ export function CutInfoButton({
           e.stopPropagation(); // don't also select the table row
           ref.current?.showModal();
         }}
-        aria-label={`Show how to cut ${grid} by ${grid}`}
+        aria-label={`Show how to cut ${rows} rows by ${cols} columns`}
         title="See how to cut"
         className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] leading-none font-bold italic ${
           light
@@ -162,10 +172,10 @@ export function CutInfoButton({
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <h3 className="text-lg font-bold">
-                {grid}×{grid} cut: {pieces} pieces
+                {rows} × {cols} cut: {pieces} piece{pieces > 1 ? "s" : ""}
               </h3>
               <p className="text-sm text-cocoa-500">
-                {panInch}″ × {panInch}″ loyang
+                {rows} row{rows > 1 ? "s" : ""} × {cols} column{cols > 1 ? "s" : ""} · {panInch}″ × {panInch}″ loyang
               </p>
             </div>
             <button
@@ -178,25 +188,33 @@ export function CutInfoButton({
             </button>
           </div>
 
-          <CutDiagram grid={grid} panInch={panInch} />
+          <CutDiagram rows={rows} cols={cols} panInch={panInch} />
 
           <ol className="mt-4 list-decimal space-y-1 pl-5 text-sm text-cocoa-800">
-            {cuts === 0 ? (
+            {pieces === 1 ? (
               <li>No cutting needed: sell the whole loyang as one piece.</li>
             ) : (
               <>
+                {downCuts > 0 && (
+                  <li>
+                    Make <b>{downCuts}</b> cut{downCuts > 1 ? "s" : ""} from <b>top to bottom</b>, every{" "}
+                    <b>
+                      {fmtIn(pieceW)} ({fmtCm(pieceW)} cm)
+                    </b>
+                    . This makes {cols} columns.
+                  </li>
+                )}
+                {acrossCuts > 0 && (
+                  <li>
+                    Make <b>{acrossCuts}</b> cut{acrossCuts > 1 ? "s" : ""} from <b>side to side</b>, every{" "}
+                    <b>
+                      {fmtIn(pieceL)} ({fmtCm(pieceL)} cm)
+                    </b>
+                    . This makes {rows} rows.
+                  </li>
+                )}
                 <li>
-                  Make <b>{cuts}</b> straight cut{cuts > 1 ? "s" : ""} from top to bottom, every{" "}
-                  <b>
-                    {pieceIn.toFixed(2)}″ ({(pieceIn * CM_PER_INCH).toFixed(1)} cm)
-                  </b>
-                  .
-                </li>
-                <li>
-                  Turn the loyang and make <b>{cuts}</b> more cut{cuts > 1 ? "s" : ""} the other way, same spacing.
-                </li>
-                <li>
-                  You get <b>{pieces}</b> square pieces ({grid} rows × {grid} pieces).
+                  You get <b>{pieces}</b> {shape} pieces of {fmtIn(pieceW)} × {fmtIn(pieceL)}.
                 </li>
               </>
             )}

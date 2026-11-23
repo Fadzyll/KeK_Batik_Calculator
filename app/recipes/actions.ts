@@ -25,19 +25,28 @@ export async function updateRecipeSettings(fd: FormData) {
   const path = `/recipes/${id}`;
   const name = str(fd, "recipe_name");
   const pan_size_inch = numField(fd, "pan_size_inch");
-  const default_grid = Math.round(numField(fd, "default_grid"));
+  const default_rows = Math.round(numField(fd, "default_rows"));
+  const default_cols = Math.round(numField(fd, "default_cols"));
   const target_margin = numField(fd, "target_margin");
   const rounding_step = numField(fd, "rounding_step");
   if (!name) fail(path, "Recipe name can't be empty.");
   if (!(pan_size_inch > 0)) fail(path, "Pan size must be more than 0.");
-  if (!(default_grid >= 1 && default_grid <= 20)) fail(path, "Cutting grid must be between 1 and 20.");
+  if (!(default_rows >= 1 && default_rows <= 30)) fail(path, "Rows must be between 1 and 30.");
+  if (!(default_cols >= 1 && default_cols <= 30)) fail(path, "Columns must be between 1 and 30.");
   if (!(target_margin >= 0 && target_margin < 100)) fail(path, "Margin must be between 0 and 99%.");
   if (!(rounding_step >= 0)) fail(path, "Rounding must be 0 or more.");
   const { error } = await supabase
     .from("recipes")
-    .update({ name, pan_size_inch, default_grid, target_margin, rounding_step, notes: optStr(fd, "notes") })
+    .update({ name, pan_size_inch, default_rows, default_cols, target_margin, rounding_step, notes: optStr(fd, "notes") })
     .eq("id", id);
-  if (error) fail(path, error.message);
+  if (error) {
+    fail(
+      path,
+      error.message.includes("default_rows") || error.message.includes("default_cols")
+        ? "Database needs a quick update: run supabase/migrations/002_cut_rows_cols.sql in the Supabase SQL Editor."
+        : error.message,
+    );
+  }
   revalidatePath("/", "layout");
   redirect(path);
 }

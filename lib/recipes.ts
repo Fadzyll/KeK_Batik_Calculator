@@ -28,3 +28,11 @@ export function pricingInput(r: RecipeWithCosts) {
     roundingStep: Number(r.rounding_step),
   };
 }
+
+/** The recipe's chosen cut. Falls back to the old square grid if the rows/cols migration hasn't run. */
+export function cutOf(r: Recipe): { rows: number; cols: number } {
+  return {
+    rows: Number(r.default_rows ?? r.default_grid ?? 4),
+    cols: Number(r.default_cols ?? r.default_grid ?? 4),
+  };
+}

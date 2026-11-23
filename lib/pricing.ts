@@ -57,10 +57,12 @@ export function marginOf(price: number, cost: number): number {
   return ((price - cost) / price) * 100;
 }
 
-export type GridOption = {
-  grid: number; // pieces per side
+export type CutOption = {
+  rows: number;
+  cols: number;
   pieces: number;
-  pieceSizeInch: number;
+  pieceWidthInch: number; // across (pan width ÷ columns)
+  pieceLengthInch: number; // down (pan length ÷ rows)
   costPerPiece: number;
   rawPrice: number;
   suggestedPrice: number;
@@ -78,8 +80,9 @@ export type PricingInput = {
   roundingStep: number;
 };
 
-export function pricingForGrid(input: PricingInput, grid: number): GridOption {
-  const pieces = grid * grid;
+/** Price a cut of `rows` × `cols` pieces from one (square) loyang. */
+export function pricingForCut(input: PricingInput, rows: number, cols: number): CutOption {
+  const pieces = rows * cols;
   const ingredientCost = ingredientCostPerLoyang(input.items);
   const { perLoyang, perPiece } = extraCostTotals(input.extras);
   const costPerPiece = (ingredientCost + perLoyang) / pieces + perPiece;
@@ -87,9 +90,11 @@ export function pricingForGrid(input: PricingInput, grid: number): GridOption {
   const suggestedPrice = roundUpTo(rawPrice, input.roundingStep);
   const profitPerPiece = suggestedPrice - costPerPiece;
   return {
-    grid,
+    rows,
+    cols,
     pieces,
-    pieceSizeInch: input.panSizeInch / grid,
+    pieceWidthInch: input.panSizeInch / cols,
+    pieceLengthInch: input.panSizeInch / rows,
     costPerPiece,
     rawPrice,
     suggestedPrice,
@@ -99,6 +104,11 @@ export function pricingForGrid(input: PricingInput, grid: number): GridOption {
     profitPerLoyang: profitPerPiece * pieces,
   };
 }
+
+/** Common ways to cut a loyang, for the comparison table (rows × columns). */
+export const COMMON_CUTS: [number, number][] = [
+  [2, 2], [3, 2], [4, 2], [3, 3], [4, 3], [4, 4], [5, 4], [5, 5], [6, 4], [6, 5], [6, 6], [7, 7], [8, 8],
+];
 
 export function loyangCost(items: CostItem[], extras: ExtraCost[], pieces: number): number {
   const { perLoyang, perPiece } = extraCostTotals(extras);

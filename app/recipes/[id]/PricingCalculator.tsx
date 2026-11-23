@@ -1,19 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { marginOf, pricingForGrid, type PricingInput } from "@/lib/pricing";
+import { COMMON_CUTS, marginOf, pricingForCut, type PricingInput } from "@/lib/pricing";
 import { SubmitButton } from "@/components/SubmitButton";
 import { CutInfoButton } from "@/components/CutGuide";
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
-const GRIDS = [2, 3, 4, 5, 6, 7, 8];
+const inch = (n: number) => `${Number(n.toFixed(2))}″`;
+const clampCut = (v: string) => Math.min(30, Math.max(1, Math.round(Number(v) || 1)));
 
 type Props = {
   recipe: {
     id: string;
     name: string;
     pan_size_inch: number;
-    default_grid: number;
+    default_rows: number;
+    default_cols: number;
     target_margin: number;
     rounding_step: number;
     notes: string | null;
@@ -24,7 +26,15 @@ type Props = {
 
 export function PricingCalculator({ recipe, input, action }: Props) {
   const [pan, setPan] = useState(String(recipe.pan_size_inch));
-  const [grid, setGrid] = useState(recipe.default_grid);
+  // Kept as text so the box can be cleared while typing; clamped to 1–30 when used.
+  const [rowsText, setRowsText] = useState(String(recipe.default_rows));
+  const [colsText, setColsText] = useState(String(recipe.default_cols));
+  const rows = clampCut(rowsText);
+  const cols = clampCut(colsText);
+  const pick = (r: number, c: number) => {
+    setRowsText(String(r));
+    setColsText(String(c));
+  };
   const [margin, setMargin] = useState(Number(recipe.target_margin));
   const [step, setStep] = useState(String(recipe.rounding_step));
   const [ownPrice, setOwnPrice] = useState("");
@@ -36,12 +46,21 @@ export function PricingCalculator({ recipe, input, action }: Props) {
     roundingStep: Number(step) || 0,
   };
 
-  const grids = useMemo(() => {
-    const set = new Set([...GRIDS, grid]);
-    return [...set].sort((a, b) => a - b);
-  }, [grid]);
+  // Common cuts plus whatever the user typed, ordered by number of pieces
+  const cuts = useMemo(() => {
+    const seen = new Set<string>();
+    const list: [number, number][] = [];
+    for (const [r, c] of [...COMMON_CUTS, [rows, cols] as [number, number]]) {
+      const key = `${r}x${c}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        list.push([r, c]);
+      }
+    }
+    return list.sort((a, b) => a[0] * a[1] - b[0] * b[1] || a[0] - b[0]);
+  }, [rows, cols]);
 
-  const selected = pricingForGrid(full, grid);
+  const selected = pricingForCut(full, rows, cols);
   const own = Number(ownPrice);
   const hasOwn = ownPrice !== "" && own > 0;
 
@@ -56,10 +75,10 @@ export function PricingCalculator({ recipe, input, action }: Props) {
       <div className="rounded-xl bg-cocoa-800 p-4 text-white sm:p-5">
         <p className="flex flex-wrap items-center gap-2 text-sm text-cocoa-200">
           <span>
-            Cut {grid}×{grid} → <b>{selected.pieces} pieces</b> of {selected.pieceSizeInch.toFixed(2)}″ ×{" "}
-            {selected.pieceSizeInch.toFixed(2)}″
+            Cut {rows} rows × {cols} columns → <b>{selected.pieces} pieces</b> of{" "}
+            {inch(selected.pieceWidthInch)} × {inch(selected.pieceLengthInch)}
           </span>
-          <CutInfoButton grid={grid} panInch={full.panSizeInch} price={selected.suggestedPrice} light />
+          <CutInfoButton rows={rows} cols={cols} panInch={full.panSizeInch} price={selected.suggestedPrice} light />
         </p>
         <div className="mt-2 flex flex-wrap items-end gap-x-8 gap-y-2">
           <div>
@@ -82,17 +101,36 @@ export function PricingCalculator({ recipe, input, action }: Props) {
 
       {/* Controls */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div>
-          <label className="label">Cutting grid (pieces per side)</label>
-          <input
-            name="default_grid"
-            type="number"
-            min={1}
-            max={20}
-            value={grid}
-            onChange={(e) => setGrid(Math.min(20, Math.max(1, Math.round(Number(e.target.value) || 1))))}
-            className="input"
-          />
+        <div className="col-span-2 sm:col-span-1">
+          <span className="label">Cut into (rows × columns)</span>
+          <div className="flex items-center gap-2">
+            <input
+              name="default_rows"
+              type="number"
+              min={1}
+              max={30}
+              required
+              aria-label="Rows"
+              value={rowsText}
+              onChange={(e) => setRowsText(e.target.value)}
+              onBlur={() => setRowsText(String(rows))}
+              className="input text-center"
+            />
+            <span className="text-cocoa-500">×</span>
+            <input
+              name="default_cols"
+              type="number"
+              min={1}
+              max={30}
+              required
+              aria-label="Columns"
+              value={colsText}
+              onChange={(e) => setColsText(e.target.value)}
+              onBlur={() => setColsText(String(cols))}
+              className="input text-center"
+            />
+          </div>
+          <p className="mt-1 text-[11px] text-cocoa-500">e.g. 4 × 2 = 8 pieces</p>
         </div>
         <div>
           <label className="label">Target profit margin: {margin}%</label>
@@ -131,12 +169,12 @@ export function PricingCalculator({ recipe, input, action }: Props) {
         </div>
       </div>
 
-      {/* Grid comparison */}
+      {/* Cut comparison */}
       <div className="overflow-x-auto">
         <table className="table">
           <thead>
             <tr>
-              <th>Cut</th>
+              <th>Cut (rows×cols)</th>
               <th>Piece size</th>
               <th className="text-right">Cost/pc</th>
               <th className="text-right">Sell/pc</th>
@@ -144,24 +182,26 @@ export function PricingCalculator({ recipe, input, action }: Props) {
             </tr>
           </thead>
           <tbody>
-            {grids.map((g) => {
-              const p = pricingForGrid(full, g);
-              const active = g === grid;
+            {cuts.map(([r, c]) => {
+              const p = pricingForCut(full, r, c);
+              const active = r === rows && c === cols;
               return (
                 <tr
-                  key={g}
-                  onClick={() => setGrid(g)}
+                  key={`${r}x${c}`}
+                  onClick={() => pick(r, c)}
                   className={`cursor-pointer ${active ? "bg-cocoa-100 font-semibold" : "hover:bg-cocoa-50"}`}
                 >
                   <td>
                     <span className="inline-flex items-center gap-2">
-                      <span>
-                        {g}×{g} <span className="text-cocoa-500">({p.pieces} pcs)</span>
+                      <span className="whitespace-nowrap">
+                        {r}×{c} <span className="text-cocoa-500">({p.pieces} pcs)</span>
                       </span>
-                      <CutInfoButton grid={g} panInch={full.panSizeInch} price={p.suggestedPrice} />
+                      <CutInfoButton rows={r} cols={c} panInch={full.panSizeInch} price={p.suggestedPrice} />
                     </span>
                   </td>
-                  <td>{p.pieceSizeInch.toFixed(2)}″</td>
+                  <td className="whitespace-nowrap">
+                    {inch(p.pieceWidthInch)} × {inch(p.pieceLengthInch)}
+                  </td>
                   <td className="text-right">{rm(p.costPerPiece)}</td>
                   <td className="text-right text-cocoa-800">{rm(p.suggestedPrice)}</td>
                   <td className="text-right">{rm(p.profitPerLoyang)}</td>
@@ -170,7 +210,7 @@ export function PricingCalculator({ recipe, input, action }: Props) {
             })}
           </tbody>
         </table>
-        <p className="mt-1 text-xs text-cocoa-500">Tap a row to pick that cut. Tap ⓘ to see how to cut it.</p>
+        <p className="mt-1 text-xs text-cocoa-500">Tap a row to pick that cut, or type any rows × columns above. Tap ⓘ to see how to cut it.</p>
       </div>
 
       {/* Own price check */}

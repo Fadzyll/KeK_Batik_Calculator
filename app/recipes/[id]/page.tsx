@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/supabase/server";
-import { fetchRecipe, pricingInput } from "@/lib/recipes";
+import { cutOf, fetchRecipe, pricingInput } from "@/lib/recipes";
 import { extraCostTotals, ingredientCostPerLoyang, itemCost } from "@/lib/pricing";
 import { num, rm } from "@/lib/format";
 import { SubmitButton } from "@/components/SubmitButton";
@@ -165,7 +165,8 @@ export default async function RecipePage({
           id: recipe.id,
           name: recipe.name,
           pan_size_inch: Number(recipe.pan_size_inch),
-          default_grid: recipe.default_grid,
+          default_rows: cutOf(recipe).rows,
+          default_cols: cutOf(recipe).cols,
           target_margin: Number(recipe.target_margin),
           rounding_step: Number(recipe.rounding_step),
           notes: recipe.notes,

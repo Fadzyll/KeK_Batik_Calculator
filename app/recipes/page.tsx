@@ -21,10 +21,10 @@ export default async function RecipesPage({ searchParams }: { searchParams: Prom
 
       <FormError message={error} />
 
-      <form action={createRecipe} className="card flex flex-col gap-3 sm:flex-row sm:items-end">
+      <form action={createRecipe} autoComplete="off" className="card flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
           <label className="label">New recipe name</label>
-          <input name="name" required placeholder="e.g. Kek Batik Milo Original" className="input" />
+          <input name="recipe_name" required autoComplete="off" placeholder="e.g. Kek Batik Milo Original" className="input" />
         </div>
         <SubmitButton>Create recipe</SubmitButton>
       </form>

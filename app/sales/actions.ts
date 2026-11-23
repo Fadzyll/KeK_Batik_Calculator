@@ -23,7 +23,7 @@ export async function addSale(fd: FormData) {
     pieces,
     price_per_piece,
     recipe_id: optStr(fd, "recipe_id"),
-    customer: optStr(fd, "customer"),
+    customer: optStr(fd, "sale_customer"),
     notes: optStr(fd, "notes"),
   });
   if (error) fail(error.message);

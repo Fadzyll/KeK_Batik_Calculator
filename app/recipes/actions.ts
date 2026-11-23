@@ -11,7 +11,7 @@ function fail(path: string, msg: string): never {
 
 export async function createRecipe(fd: FormData) {
   const { supabase } = await requireUser();
-  const name = str(fd, "name");
+  const name = str(fd, "recipe_name");
   if (!name) fail("/recipes", "Please give the recipe a name.");
   const { data, error } = await supabase.from("recipes").insert({ name }).select("id").single();
   if (error) fail("/recipes", error.message);
@@ -23,7 +23,7 @@ export async function updateRecipeSettings(fd: FormData) {
   const { supabase } = await requireUser();
   const id = str(fd, "id");
   const path = `/recipes/${id}`;
-  const name = str(fd, "name");
+  const name = str(fd, "recipe_name");
   const pan_size_inch = numField(fd, "pan_size_inch");
   const default_grid = Math.round(numField(fd, "default_grid"));
   const target_margin = numField(fd, "target_margin");
@@ -79,7 +79,7 @@ export async function addExtraCost(fd: FormData) {
   const { supabase } = await requireUser();
   const recipe_id = str(fd, "recipe_id");
   const path = `/recipes/${recipe_id}`;
-  const name = str(fd, "name");
+  const name = str(fd, "cost_name");
   const amount = numField(fd, "amount");
   const cost_type = str(fd, "cost_type") === "per_piece" ? "per_piece" : "per_loyang";
   if (!name) fail(path, "Name the extra cost (e.g. Plastic wrap).");

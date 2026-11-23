@@ -31,7 +31,7 @@ export function DeleteButton({
   extra?: Record<string, string>;
 }) {
   return (
-    <form action={action} className="inline">
+    <form action={action} autoComplete="off" className="inline">
       <input type="hidden" name="id" value={id} />
       {extra && Object.entries(extra).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
       <Inner label={label} />

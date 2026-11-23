@@ -52,7 +52,7 @@ export default async function ExpensesPage({
 
       <FormError message={sp.error} />
 
-      <form action={addExpense} className="card">
+      <form action={addExpense} autoComplete="off" className="card">
         <h2 className="h2">Add expense</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-6 sm:items-end">
           <div>
@@ -88,7 +88,7 @@ export default async function ExpensesPage({
           </div>
           <div className="col-span-2 sm:col-span-4">
             <label className="label">Description</label>
-            <input name="description" placeholder="Optional if you picked an ingredient (e.g. Kotak 8x8, Gas refill)" className="input" />
+            <input name="description" autoComplete="off" placeholder="Optional if you picked an ingredient (e.g. Kotak 8x8, Gas refill)" className="input" />
           </div>
           <SubmitButton className="btn col-span-2">Add expense</SubmitButton>
         </div>

@@ -10,7 +10,7 @@ function fail(msg: string): never {
 }
 
 function parse(fd: FormData) {
-  const name = str(fd, "name");
+  const name = str(fd, "ingredient_name");
   const pack_price = numField(fd, "pack_price");
   const pack_size = numField(fd, "pack_size");
   const unit = str(fd, "unit") || "g";

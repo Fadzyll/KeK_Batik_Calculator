@@ -22,7 +22,7 @@ export function SaleForm({
   const total = (Number(pieces) || 0) * (Number(price) || 0);
 
   return (
-    <form action={action} className="card">
+    <form action={action} autoComplete="off" className="card">
       <h2 className="h2">Record a sale</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-6 sm:items-end">
         <div>
@@ -75,11 +75,11 @@ export function SaleForm({
         </div>
         <div>
           <label className="label">Customer</label>
-          <input name="customer" placeholder="Optional" className="input" />
+          <input name="sale_customer" autoComplete="off" placeholder="Optional" className="input" />
         </div>
         <div className="col-span-2 sm:col-span-4">
           <label className="label">Notes</label>
-          <input name="notes" placeholder="Optional (e.g. paid via DuitNow, delivered)" className="input" />
+          <input name="notes" autoComplete="off" placeholder="Optional (e.g. paid via DuitNow, delivered)" className="input" />
         </div>
         <div className="col-span-2 flex items-center justify-between gap-3">
           <p className="text-sm">

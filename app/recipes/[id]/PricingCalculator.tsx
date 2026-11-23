@@ -45,7 +45,7 @@ export function PricingCalculator({ recipe, input, action }: Props) {
   const hasOwn = ownPrice !== "" && own > 0;
 
   return (
-    <form action={action} className="card space-y-5">
+    <form action={action} autoComplete="off" className="card space-y-5">
       <input type="hidden" name="id" value={recipe.id} />
       <div className="flex items-center justify-between">
         <h2 className="h2 mb-0">Price per piece</h2>
@@ -192,11 +192,11 @@ export function PricingCalculator({ recipe, input, action }: Props) {
       <div className="grid gap-3 border-t border-cocoa-100 pt-4 sm:grid-cols-2">
         <div>
           <label className="label">Recipe name</label>
-          <input name="name" defaultValue={recipe.name} required className="input" />
+          <input name="recipe_name" autoComplete="off" defaultValue={recipe.name} required className="input" />
         </div>
         <div>
           <label className="label">Notes</label>
-          <input name="notes" defaultValue={recipe.notes ?? ""} placeholder="Optional" className="input" />
+          <input name="notes" autoComplete="off" defaultValue={recipe.notes ?? ""} placeholder="Optional" className="input" />
         </div>
       </div>
       <div className="flex justify-end">

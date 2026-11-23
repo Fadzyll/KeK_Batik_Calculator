@@ -11,7 +11,7 @@ function IngredientFields({ ing }: { ing?: Ingredient }) {
     <>
       <div className="col-span-2 sm:col-span-1">
         <label className="label">Name</label>
-        <input name="name" required defaultValue={ing?.name} placeholder="e.g. Milo" className="input" />
+        <input name="ingredient_name" required autoComplete="off" defaultValue={ing?.name} placeholder="e.g. Milo" className="input" />
       </div>
       <div>
         <label className="label">Pack price (RM)</label>
@@ -54,7 +54,7 @@ export default async function IngredientsPage({
 
       <FormError message={error} />
 
-      <form action={addIngredient} className="card">
+      <form action={addIngredient} autoComplete="off" className="card">
         <h2 className="h2">Add ingredient</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 sm:items-end">
           <IngredientFields />
@@ -81,7 +81,7 @@ export default async function IngredientsPage({
                 edit === ing.id ? (
                   <tr key={ing.id}>
                     <td colSpan={5}>
-                      <form action={updateIngredient} className="grid grid-cols-2 gap-3 py-2 sm:grid-cols-6 sm:items-end">
+                      <form action={updateIngredient} autoComplete="off" className="grid grid-cols-2 gap-3 py-2 sm:grid-cols-6 sm:items-end">
                         <input type="hidden" name="id" value={ing.id} />
                         <IngredientFields ing={ing} />
                         <div className="col-span-2 flex gap-2 sm:col-span-1">

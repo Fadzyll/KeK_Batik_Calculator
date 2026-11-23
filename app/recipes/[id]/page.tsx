@@ -60,7 +60,7 @@ export default async function RecipePage({
             You have no ingredients yet. <Link href="/ingredients" className="underline">Add ingredients first</Link>.
           </p>
         ) : (
-          <form action={addRecipeItem} className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:items-end">
+          <form action={addRecipeItem} autoComplete="off" className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:items-end">
             <input type="hidden" name="recipe_id" value={recipe.id} />
             <div className="col-span-2">
               <label className="label">Ingredient</label>
@@ -123,11 +123,11 @@ export default async function RecipePage({
       <section className="card">
         <h2 className="h2">Extra costs</h2>
         <p className="muted mb-3">Packaging, gas/electricity, your labour. Per loyang, or per piece (like a plastic wrap or box for each piece).</p>
-        <form action={addExtraCost} className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:items-end">
+        <form action={addExtraCost} autoComplete="off" className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:items-end">
           <input type="hidden" name="recipe_id" value={recipe.id} />
           <div className="col-span-2 sm:col-span-1">
             <label className="label">Name</label>
-            <input name="name" required placeholder="e.g. Plastic wrap" className="input" />
+            <input name="cost_name" required autoComplete="off" placeholder="e.g. Plastic wrap" className="input" />
           </div>
           <div>
             <label className="label">Amount (RM)</label>

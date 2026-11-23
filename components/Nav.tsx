@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
@@ -10,6 +10,18 @@ const LINKS = [
   { href: "/expenses", label: "Expenses", icon: "🧾" },
   { href: "/sales", label: "Sales", icon: "💰" },
 ];
+
+/** Small spinner shown inside a link while the page it points to is loading. */
+function Pending({ className = "" }: { className?: string }) {
+  const { pending } = useLinkStatus();
+  if (!pending) return null;
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent ${className}`}
+    />
+  );
+}
 
 export function Nav({ email }: { email: string }) {
   const pathname = usePathname();
@@ -27,11 +39,12 @@ export function Nav({ email }: { email: string }) {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium ${
                   isActive(l.href) ? "bg-cocoa-700 text-white" : "text-cocoa-700 hover:bg-cocoa-100"
                 }`}
               >
                 {l.label}
+                <Pending />
               </Link>
             ))}
           </nav>
@@ -48,12 +61,13 @@ export function Nav({ email }: { email: string }) {
           <Link
             key={l.href}
             href={l.href}
-            className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
+            className={`relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
               isActive(l.href) ? "text-cocoa-800" : "text-cocoa-400"
             }`}
           >
             <span className="text-lg leading-none">{l.icon}</span>
             {l.label}
+            <Pending className="absolute top-1.5 right-1/4" />
           </Link>
         ))}
       </nav>

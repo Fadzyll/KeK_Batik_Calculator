@@ -2,6 +2,7 @@ import Link from "next/link";
 import { login, resendConfirmation } from "./actions";
 import { SubmitButton } from "@/components/SubmitButton";
 import { FormError } from "@/components/FormError";
+import { PasswordInput } from "@/components/PasswordInput";
 import { FormMessage } from "@/components/FormMessage";
 
 export default async function LoginPage({
@@ -39,7 +40,7 @@ export default async function LoginPage({
         </div>
         <div>
           <label className="label" htmlFor="password">Password</label>
-          <input id="password" name="password" type="password" required autoComplete="current-password" className="input" />
+          <PasswordInput id="password" name="password" required autoComplete="current-password" />
         </div>
         <SubmitButton className="btn w-full" pendingText="Signing in…">Sign in</SubmitButton>
       </form>

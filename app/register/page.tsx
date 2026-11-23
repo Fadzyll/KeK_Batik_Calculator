@@ -2,6 +2,7 @@ import Link from "next/link";
 import { register } from "./actions";
 import { SubmitButton } from "@/components/SubmitButton";
 import { FormError } from "@/components/FormError";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export default async function RegisterPage({
   searchParams,
@@ -42,11 +43,11 @@ export default async function RegisterPage({
         </div>
         <div>
           <label className="label" htmlFor="password">Password (min. 8 characters)</label>
-          <input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" className="input" />
+          <PasswordInput id="password" name="password" required minLength={8} autoComplete="new-password" />
         </div>
         <div>
           <label className="label" htmlFor="confirm">Confirm password</label>
-          <input id="confirm" name="confirm" type="password" required minLength={8} autoComplete="new-password" className="input" />
+          <PasswordInput id="confirm" name="confirm" required minLength={8} autoComplete="new-password" />
         </div>
         <SubmitButton className="btn w-full" pendingText="Creating account…">Register</SubmitButton>
       </form>

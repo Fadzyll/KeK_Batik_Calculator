@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { marginOf, pricingForGrid, type PricingInput } from "@/lib/pricing";
 import { SubmitButton } from "@/components/SubmitButton";
+import { CutInfoButton } from "@/components/CutGuide";
 
 const rm = (n: number) => `RM${n.toFixed(2)}`;
 const GRIDS = [2, 3, 4, 5, 6, 7, 8];
@@ -53,9 +54,12 @@ export function PricingCalculator({ recipe, input, action }: Props) {
 
       {/* Headline */}
       <div className="rounded-xl bg-cocoa-800 p-4 text-white sm:p-5">
-        <p className="text-sm text-cocoa-200">
-          Cut {grid}×{grid} → <b>{selected.pieces} pieces</b> of {selected.pieceSizeInch.toFixed(2)}″ ×{" "}
-          {selected.pieceSizeInch.toFixed(2)}″
+        <p className="flex flex-wrap items-center gap-2 text-sm text-cocoa-200">
+          <span>
+            Cut {grid}×{grid} → <b>{selected.pieces} pieces</b> of {selected.pieceSizeInch.toFixed(2)}″ ×{" "}
+            {selected.pieceSizeInch.toFixed(2)}″
+          </span>
+          <CutInfoButton grid={grid} panInch={full.panSizeInch} price={selected.suggestedPrice} light />
         </p>
         <div className="mt-2 flex flex-wrap items-end gap-x-8 gap-y-2">
           <div>
@@ -150,7 +154,12 @@ export function PricingCalculator({ recipe, input, action }: Props) {
                   className={`cursor-pointer ${active ? "bg-cocoa-100 font-semibold" : "hover:bg-cocoa-50"}`}
                 >
                   <td>
-                    {g}×{g} <span className="text-cocoa-500">({p.pieces} pcs)</span>
+                    <span className="inline-flex items-center gap-2">
+                      <span>
+                        {g}×{g} <span className="text-cocoa-500">({p.pieces} pcs)</span>
+                      </span>
+                      <CutInfoButton grid={g} panInch={full.panSizeInch} price={p.suggestedPrice} />
+                    </span>
                   </td>
                   <td>{p.pieceSizeInch.toFixed(2)}″</td>
                   <td className="text-right">{rm(p.costPerPiece)}</td>
@@ -161,7 +170,7 @@ export function PricingCalculator({ recipe, input, action }: Props) {
             })}
           </tbody>
         </table>
-        <p className="mt-1 text-xs text-cocoa-500">Tap a row to pick that cut.</p>
+        <p className="mt-1 text-xs text-cocoa-500">Tap a row to pick that cut. Tap ⓘ to see how to cut it.</p>
       </div>
 
       {/* Own price check */}

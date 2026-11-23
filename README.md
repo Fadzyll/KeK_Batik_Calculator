@@ -63,6 +63,10 @@ npm run dev                  # open http://localhost:3000
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 3. Click **Deploy**. Every push to your main branch will redeploy automatically.
 
+> The server region is pinned to **Sydney (`syd1`)** in `vercel.json` to sit next to the Supabase
+> database (ap-southeast-2). If you ever move Supabase to another region, change it there too;
+> a server far from the database makes every page slow.
+
 ### Verification emails
 
 Supabase's built-in email sender only allows a few emails per hour and is meant for testing.
